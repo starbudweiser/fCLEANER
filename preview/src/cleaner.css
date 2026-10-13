@@ -1,0 +1,55 @@
+/* fCLEANER — transcription de la mise en page Qt (InstanceCleanerApp) avec la feuille Socle de socle_qt. */
+.cl-window { max-width: 920px; height: min(668px, calc(100vh - var(--size-bar) - 48px)); min-height: 548px; background: var(--bg); }
+.cl-root { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3); color: var(--text); font-size: 12px; line-height: 16px; }
+
+/* QFrame[panel="true"] / [panel="raised"] */
+.cl-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3); }
+.cl-panel--raised { background: var(--surface-raised); }
+.cl-header { display: flex; flex-direction: column; gap: var(--space-2); }
+.cl-header__top { display: flex; align-items: center; gap: var(--space-3); }
+.cl-title { flex: 1; margin: 0; font: 700 16px/24px var(--font-sans); letter-spacing: .025em; color: var(--text-strong); }
+.cl-subtitle { margin: 0; color: var(--text-muted); }
+
+/* Sélecteur de langue (QFrame#langSwitch) */
+.cl-segmented { display: flex; gap: 2px; padding: 2px; background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.cl-seg { height: 24px; padding: 0 var(--space-2); background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: var(--radius); font: 500 12px/16px var(--font-sans); cursor: pointer; transition: background-color .15s, color .15s; }
+.cl-seg:hover:not(:disabled) { background: var(--surface-hover); color: var(--text-strong); }
+.cl-seg[aria-pressed="true"] { background: var(--control); color: var(--text-strong); }
+.cl-seg:disabled { opacity: var(--opacity-disabled); cursor: default; }
+
+.cl-path { display: flex; gap: var(--space-2); }
+.cl-input { flex: 1; min-width: 0; height: var(--size-control); padding: 0 var(--space-2\.5); background: var(--bg-sunken); border: 1px solid var(--border-control); border-radius: var(--radius); color: var(--text-strong); font: 12px/16px var(--font-sans); }
+.cl-input::placeholder { color: var(--text-subtle); }
+.cl-input:focus { outline: none; border-color: var(--focus-ring); }
+.cl-input:disabled { color: var(--text-disabled); }
+
+/* Boutons : secondaire par défaut, tertiaire, principal (Socle) */
+.cl-btn { height: var(--size-control); padding: 0 var(--space-3); background: var(--control); color: var(--text-strong); border: 1px solid var(--control); border-radius: var(--radius); font: 500 12px/16px var(--font-sans); cursor: pointer; white-space: nowrap; transition: background-color .15s; }
+.cl-btn:hover:not(:disabled) { background: var(--control-hover); border-color: var(--control-hover); }
+.cl-btn:active:not(:disabled) { background: var(--control-pressed); }
+.cl-btn:disabled { color: var(--text-disabled); cursor: default; }
+.cl-btn--tertiary { background: var(--control-strong); border-color: var(--control-strong); }
+.cl-btn--primary { height: var(--size-control-lg); padding: 0 var(--space-4); background: var(--accent-fill); border-color: var(--accent-fill); color: var(--on-accent-fill); font-weight: 700; letter-spacing: .025em; }
+.cl-btn--primary:hover:not(:disabled) { background: var(--accent-fill-hover); border-color: var(--accent-fill-hover); }
+.cl-btn--primary:active:not(:disabled) { background: var(--accent-fill-pressed); }
+.cl-btn--primary:disabled { background: var(--control); border-color: var(--control); }
+
+.cl-console { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.cl-log-title { font: 700 14px/20px var(--font-sans); letter-spacing: .025em; color: var(--text-strong); }
+.cl-log { flex: 1; min-height: 0; overflow: auto; padding: var(--space-2); background: var(--bg-sunken); border: 1px solid var(--border-control); border-radius: var(--radius); color: var(--text-muted); font: 11px/16px var(--font-mono); }
+.cl-log p { margin: 0; }
+.cl-log .is-head { color: var(--accent-text); font-weight: 700; }
+.cl-log .is-ok { color: var(--success); }
+.cl-log .is-info { color: var(--accent-text); }
+.cl-log .is-warn { color: var(--warning); }
+.cl-log .is-err { color: var(--danger); }
+.cl-log .is-path { color: var(--accent-text); }
+
+.cl-actions { display: flex; align-items: center; gap: var(--space-2); }
+.cl-status { flex: 1; color: var(--text-muted); }
+.cl-status[data-status="success"] { color: var(--success); }
+.cl-status[data-status="danger"] { color: var(--danger); }
+
+/* Dialogue des règles : QTextBrowser en lecture seule */
+.cl-rules-head { margin: 0; font: 700 16px/24px var(--font-sans); letter-spacing: .025em; color: var(--text-strong); }
+.cl-rules { flex: 1; min-height: 0; overflow: auto; padding: var(--space-2); background: var(--bg-sunken); border: 1px solid var(--border-control); border-radius: var(--radius); }

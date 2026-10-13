@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fCLEANER – Preview</title>
+  <link rel="icon" href="/icon.png">
+</head>
+<body>
+  <header class="pv-bar">
+    <span class="pv-bar__title">fCLEANER</span>
+    <span class="pv-bar__meta">src/flattener_cleaner.py</span>
+    <span class="pv-bar__spacer"></span>
+    <button class="pv-btn" id="pv-reset">Réinitialiser la démo</button>
+  </header>
+  <div class="pv-stage">
+    <div class="mac-window cl-window">
+      <div class="mac-titlebar"><div class="mac-dots"><i></i><i></i><i></i></div><span id="wtitle"></span></div>
+      <div class="mac-body" id="host">
+        <main class="cl-root">
+          <section class="cl-panel cl-panel--raised cl-header">
+            <div class="cl-header__top">
+              <h1 class="cl-title" id="title"></h1>
+              <div class="cl-segmented" role="group" aria-label="Langue" id="langs"></div>
+            </div>
+            <p class="cl-subtitle" id="subtitle"></p>
+          </section>
+          <section class="cl-panel cl-path">
+            <input class="cl-input" id="path" type="text" autocomplete="off" spellcheck="false">
+            <button class="cl-btn" id="browse"></button>
+          </section>
+          <section class="cl-panel cl-console">
+            <label class="cl-log-title" id="logTitle" for="log"></label>
+            <div class="cl-log" id="log" role="log" tabindex="0"></div>
+          </section>
+          <section class="cl-panel cl-actions">
+            <span class="cl-status" id="status"></span>
+            <button class="cl-btn cl-btn--tertiary" id="rules"></button>
+            <button class="cl-btn" id="clean"></button>
+            <button class="cl-btn cl-btn--primary" id="scan"></button>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/cleaner.js"></script>
+</body>
+</html>

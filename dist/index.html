@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flattener Cleaner – Preview</title>
+  <meta name="description" content="Prévisualisation interactive de l'application Flattener Cleaner.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="window" aria-label="Flattener Cleaner">
+    <div class="titlebar"><div class="dots"><i></i><i></i><i></i></div><span id="wtitle"></span></div>
+    <div class="content">
+      <section class="card">
+        <div class="header-row">
+          <h1 class="title" id="title"></h1>
+          <div class="segmented" role="group" aria-label="Langue">
+            <button class="seg" id="lang-fr" data-lang="fr">🇫🇷 FR</button>
+            <button class="seg" id="lang-en" data-lang="en">🇬🇧 EN</button>
+            <button class="seg" id="lang-it" data-lang="it">🇮🇹 IT</button>
+            <button class="seg" id="lang-es" data-lang="es">🇪🇸 ES</button>
+          </div>
+        </div>
+        <p class="subtitle" id="subtitle"></p>
+      </section>
+      <section class="card path-card">
+        <input type="text" id="path" autocomplete="off">
+        <button class="btn secondary" id="browse"></button>
+      </section>
+      <section class="card console">
+        <label id="logTitle" for="log"></label>
+        <div class="log" id="log" role="log"></div>
+      </section>
+      <section class="card actions">
+        <span class="status" id="status"></span>
+        <button class="btn secondary" id="rules"></button>
+        <button class="btn scan" id="scan"></button>
+        <button class="btn clean" id="clean"></button>
+      </section>
+    </div>
+    <div class="overlay" id="overlay">
+      <div class="dialog" role="dialog" aria-labelledby="dTitle">
+        <h2 id="dTitle"></h2>
+        <div class="rules" id="rulesBody"></div>
+        <button class="btn close" id="dClose"></button>
+      </div>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
