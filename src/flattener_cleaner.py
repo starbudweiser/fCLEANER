@@ -112,6 +112,9 @@ TRANSLATIONS = {
         "status_ready": "Choisissez un dossier pour commencer.",
         "status_loaded": "Dossier prêt. Lancez l'analyse.",
         "btn_rules": "Règles de filtrage",
+        "zoom_smaller": "Réduire les textes (⌥− ou ⌘−)",
+        "zoom_bigger": "Agrandir les textes (⌥+ ou ⌘+)",
+        "zoom_reset": "Taille des textes (⌥0 ou ⌘0 : taille par défaut)",
         "btn_scan": "ANALYSER",
         "btn_clean": "Purger les résidus",
         "btn_confirm_clean": "Supprimer",
@@ -214,6 +217,9 @@ TRANSLATIONS = {
         "status_ready": "Choose a folder to get started.",
         "status_loaded": "Folder ready. Run the scan.",
         "btn_rules": "Filtering rules",
+        "zoom_smaller": "Smaller text (⌥− or ⌘−)",
+        "zoom_bigger": "Larger text (⌥+ or ⌘+)",
+        "zoom_reset": "Text size (⌥0 or ⌘0: default size)",
         "btn_scan": "SCAN",
         "btn_clean": "Purge leftovers",
         "btn_confirm_clean": "Delete",
@@ -316,6 +322,9 @@ TRANSLATIONS = {
         "status_ready": "Scelga una cartella per iniziare.",
         "status_loaded": "Cartella pronta. Avvii l'analisi.",
         "btn_rules": "Regole di filtro",
+        "zoom_smaller": "Testo più piccolo (⌥− o ⌘−)",
+        "zoom_bigger": "Testo più grande (⌥+ o ⌘+)",
+        "zoom_reset": "Dimensione del testo (⌥0 o ⌘0: dimensione predefinita)",
         "btn_scan": "ANALIZZA",
         "btn_clean": "Elimina residui",
         "btn_confirm_clean": "Elimina",
@@ -416,6 +425,9 @@ TRANSLATIONS = {
         "status_ready": "Elija una carpeta para empezar.",
         "status_loaded": "Carpeta lista. Inicie el análisis.",
         "btn_rules": "Reglas de filtrado",
+        "zoom_smaller": "Texto más pequeño (⌥− o ⌘−)",
+        "zoom_bigger": "Texto más grande (⌥+ o ⌘+)",
+        "zoom_reset": "Tamaño del texto (⌥0 o ⌘0: tamaño predeterminado)",
         "btn_scan": "ANALIZAR",
         "btn_clean": "Purgar residuos",
         "btn_confirm_clean": "Eliminar",
@@ -504,6 +516,9 @@ TRANSLATIONS = {
     },
 }
 
+# Taille des textes (zoom Socle, socle_qt.Zoom) : 1,25 par défaut, le corps passe de 12 à 15 px.
+ZOOM_DEFAULT = 1.25
+
 LANGUAGES = [("fr", "🇫🇷 FR"), ("en", "🇬🇧 EN"), ("it", "🇮🇹 IT"), ("es", "🇪🇸 ES")]
 
 
@@ -560,7 +575,8 @@ class FiltersDialog(QDialog):
 
         content = QTextBrowser()
         content.document().setDefaultStyleSheet(
-            f"h3 {{ color: {socle_qt.c('text-strong')}; font-size: 14px; margin: 12px 0 4px 0; }}"
+            f"h3 {{ color: {socle_qt.c('text-strong')}; font-size: {socle_qt.TOKENS['type']['title']['size']}px;"
+            f" margin: 12px 0 4px 0; }}"
             f"ul {{ margin: 0 0 8px 0; }}"
             f"li {{ color: {socle_qt.c('text')}; margin-bottom: 2px; }}"
             f"code {{ color: {socle_qt.c('accent-text')}; }}"
@@ -789,6 +805,11 @@ class InstanceCleanerApp(QMainWindow):
             self.lang_buttons[code] = btn
             group.addButton(btn)
             lang_layout.addWidget(btn)
+        # ⌥/⌘ + − 0 et boutons A− A+ (Socle)
+        self.zoom = socle_qt.Zoom(self, default=ZOOM_DEFAULT)
+        self.zoom.changed.connect(self._zoom_changed)
+        self.zoom_box = self.zoom.controls()
+        top.addWidget(self.zoom_box, 0, Qt.AlignmentFlag.AlignRight)
         top.addWidget(lang_switch, 0, Qt.AlignmentFlag.AlignRight)
         header_layout.addLayout(top)
 
@@ -818,8 +839,7 @@ class InstanceCleanerApp(QMainWindow):
         self.log_title = socle_qt.role(QLabel(), "title")
         self.log_text = QPlainTextEdit()
         self.log_text.setReadOnly(True)
-        self.log_text.setFont(socle_qt.font("mono-sm"))
-        self.log_text.setStyleSheet(f"font-family: \"{socle_qt.font('mono-sm').family()}\"; font-size: 11px; color: {socle_qt.c('text-muted')};")
+        self._style_log()
         self.log_title.setBuddy(self.log_text)
         log_layout.addWidget(self.log_title)
         log_layout.addWidget(self.log_text, 1)
@@ -858,8 +878,23 @@ class InstanceCleanerApp(QMainWindow):
         self.rules_btn.setText(t["btn_rules"])
         self.scan_btn.setText(t["btn_scan"])
         self.clean_btn.setText(t["btn_clean"])
+        smaller, bigger = self.zoom_box.findChildren(QPushButton)
+        smaller.setToolTip(t["zoom_smaller"])
+        bigger.setToolTip(t["zoom_bigger"])
+        self.zoom_box.findChild(QLabel).setToolTip(t["zoom_reset"])
         if not self.busy:
             self._set_status(t["status_loaded"] if self._folder() else t["status_ready"])
+
+    def _style_log(self):
+        """Journal en mono-sm, à la taille du zoom en cours."""
+        mono = socle_qt.font("mono-sm")
+        self.log_text.setFont(mono)
+        self.log_text.setStyleSheet(f"font-family: \"{mono.family()}\"; font-size: {mono.pixelSize()}px;"
+                                    f" color: {socle_qt.c('text-muted')};")
+
+    def _zoom_changed(self, value: float):
+        self.settings.setValue("zoom", value)
+        self._style_log()
 
     # ------------------------------------------------------------------ état
     def _folder(self) -> str:
@@ -964,6 +999,7 @@ class InstanceCleanerApp(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     socle_qt.apply(app)  # design system Socle (feuille complète)
+    socle_qt.set_scale(app, float(QSettings("FlattenerCleaner", "FlattenerCleaner").value("zoom", ZOOM_DEFAULT)))
     window = InstanceCleanerApp()
     window.show()
     sys.exit(app.exec())
