@@ -17,9 +17,9 @@ After flattening a mod list (with mO2FLATTENER or by hand), the game folder is f
 ### Features
 
 - **Scan** first (dry run): nothing is deleted, the full list is shown with sizes.
-- Removes OS caches (thumbs.db, desktop.ini, .DS_Store) and MO2 hidden files (*.mohidden).
+- Removes OS caches (thumbs.db, desktop.ini, .DS_Store) and MO2 hidden files (`*.mohidden`).
 - Removes xEdit modgroups and Vortex / Nexus collection metadata and staging leftovers.
-- Removes backups and temporary files (*.bak, *.tmp, * - copy.*), office documents and graphic sources (.psd, .xcf, .pdn).
+- Removes backups and temporary files (`*.bak`, `*.tmp`, `* - copy.*`), office documents and graphic sources (.psd, .xcf, .pdn).
 - Removes readmes, changelogs and licenses.
 - Built-in **filtering rules** window listing everything that is targeted.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language; can be changed in the app).
@@ -74,9 +74,9 @@ Après l'aplatissement d'une liste de mods (avec mO2FLATTENER ou à la main), le
 ### Fonctions
 
 - **Analyse** d'abord (simulation) : rien n'est supprimé, la liste complète s'affiche avec les tailles.
-- Supprime les caches système (thumbs.db, desktop.ini, .DS_Store) et les fichiers masqués de MO2 (*.mohidden).
+- Supprime les caches système (thumbs.db, desktop.ini, .DS_Store) et les fichiers masqués de MO2 (`*.mohidden`).
 - Supprime les modgroups xEdit et les métadonnées et restes de staging des collections Vortex / Nexus.
-- Supprime les sauvegardes et fichiers temporaires (*.bak, *.tmp, * - copie.*), les documents bureautiques et les sources graphiques (.psd, .xcf, .pdn).
+- Supprime les sauvegardes et fichiers temporaires (`*.bak`, `*.tmp`, `* - copie.*`), les documents bureautiques et les sources graphiques (.psd, .xcf, .pdn).
 - Supprime les lisez-moi, journaux de modifications et licences.
 - Fenêtre **Règles de filtrage** qui liste tout ce qui est ciblé.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac ; modifiable dans l'appli).
