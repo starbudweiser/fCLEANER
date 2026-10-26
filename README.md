@@ -24,6 +24,13 @@ After flattening a mod list (with mO2FLATTENER or by hand), the game folder is f
 - Built-in **filtering rules** window listing everything that is targeted.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language; can be changed in the app).
 
+### What's new in 1.0.1
+
+
+### Updates
+
+From version 1.0.1 the app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
+
 ### Screenshots
 
 ![Dry-run scan of a mods folder](docs/screenshots/02_scan.png)
@@ -80,6 +87,13 @@ Après l'aplatissement d'une liste de mods (avec mO2FLATTENER ou à la main), le
 - Supprime les lisez-moi, journaux de modifications et licences.
 - Fenêtre **Règles de filtrage** qui liste tout ce qui est ciblé.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac ; modifiable dans l'appli).
+
+### Nouveautés de la 1.0.1
+
+
+### Mises à jour
+
+À partir de la version 1.0.1, l'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose d'ouvrir la page Nexus, de rappeler plus tard ou d'ignorer cette version. Rien n'est téléchargé ni installé automatiquement. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
 
 ### Captures d'écran
 
