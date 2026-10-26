@@ -18,6 +18,7 @@ import time
 from typing import List, Tuple
 
 import socle_qt
+import update_check
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSettings
 from PyQt6.QtWidgets import (
     QApplication,
@@ -973,6 +974,7 @@ def main():
     socle_qt.apply(app)  # design system Socle (feuille complète)
     window = InstanceCleanerApp()
     window.show()
+    update_check.start_qt(window, "fCLEANER", lang=lambda: window.current_lang)  # nouvelle version ? (au plus une fois par jour)
     sys.exit(app.exec())
 
 
