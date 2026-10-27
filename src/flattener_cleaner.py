@@ -972,6 +972,7 @@ class InstanceCleanerApp(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     socle_qt.apply(app)  # design system Socle (feuille complète)
+    socle_qt.brand(app, "fCLEANER", "#d4a373")  # « f » dans la couleur du manche du logo
     window = InstanceCleanerApp()
     window.show()
     update_check.start_qt(window, "fCLEANER", lang=lambda: window.current_lang)  # nouvelle version ? (au plus une fois par jour)
