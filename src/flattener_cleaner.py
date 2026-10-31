@@ -19,7 +19,7 @@ from typing import List, Tuple
 
 import socle_qt
 import update_check
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSettings
+from PyQt6.QtCore import QLocale, Qt, QThread, pyqtSignal, QSettings
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -508,6 +508,14 @@ TRANSLATIONS = {
 LANGUAGES = [("fr", "🇫🇷 FR"), ("en", "🇬🇧 EN"), ("it", "🇮🇹 IT"), ("es", "🇪🇸 ES")]
 
 
+def system_lang() -> str:
+    """Première langue préférée du système parmi celles de l'appli, sinon l'anglais."""
+    for code in QLocale.system().uiLanguages():
+        if code[:2].lower() in TRANSLATIONS:
+            return code[:2].lower()
+    return "en"
+
+
 def tr(lang: str) -> dict:
     return TRANSLATIONS.get(lang, TRANSLATIONS["fr"])
 
@@ -722,9 +730,9 @@ class InstanceCleanerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.settings = QSettings("FlattenerCleaner", "FlattenerCleaner")
-        self.current_lang = self.settings.value("language", "fr")
+        self.current_lang = self.settings.value("language", system_lang())
         if self.current_lang not in TRANSLATIONS:
-            self.current_lang = "fr"
+            self.current_lang = system_lang()
 
         self.resize(920, 640)
         self.setMinimumSize(760, 520)
