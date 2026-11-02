@@ -18,7 +18,7 @@ import time
 from typing import List, Tuple
 
 import socle_qt
-import update_check
+import updater
 from PyQt6.QtCore import QLocale, Qt, QThread, pyqtSignal, QSettings
 from PyQt6.QtWidgets import (
     QApplication,
@@ -983,7 +983,7 @@ def main():
     socle_qt.brand(app, "fCLEANER", "#d4a373")  # « f » dans la couleur du manche du logo
     window = InstanceCleanerApp()
     window.show()
-    update_check.start_qt(window, "fCLEANER", lang=lambda: window.current_lang)  # nouvelle version ? (au plus une fois par jour)
+    updater.start_qt(window, "fCLEANER", lang=lambda: window.current_lang)  # nouvelle version ? (au plus une fois par jour)
     sys.exit(app.exec())
 
 
