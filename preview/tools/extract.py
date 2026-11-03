@@ -42,7 +42,6 @@ c = top_level(cleaner)
 print(json.dumps({
     "cleaner": {
         "translations": c["TRANSLATIONS"],
-        "languages": c["LANGUAGES"],
         "filePatterns": patterns(c["FILE_PATTERNS"]),
         "dirPatterns": patterns(c["DIR_PATTERNS"]),
     },

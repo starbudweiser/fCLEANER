@@ -2,10 +2,10 @@
 import "./chrome.css";
 import "./cleaner.css";
 import data from "virtual:app-data";
-import { esc, sleep, settings, messageBox, dialog, filePicker, STD } from "./qt.js";
+import { esc, sleep, messageBox, dialog, filePicker, STD } from "./qt.js";
 import { MockFS, relpath } from "./mockfs.js";
 
-const { translations: TRANSLATIONS, languages: LANGUAGES, filePatterns, dirPatterns } = data.cleaner;
+const { translations: TRANSLATIONS, filePatterns, dirPatterns } = data.cleaner;
 // Comme FILE_RE / DIR_RE côté Python : une seule expression par catégorie.
 const combine = (pats) => new RegExp(pats.map((p) => `(?:${p.source})`).join("|"), "i");
 const FILE_RE = combine(filePatterns);
@@ -71,16 +71,19 @@ const DEMO_NAMES = {
 };
 
 const fs = new MockFS(DEMO);
-const store = settings("fCLEANER");
 const $ = (id) => document.getElementById(id);
 const host = $("host");
 const ui = {
   title: $("title"), subtitle: $("subtitle"), path: $("path"), browse: $("browse"), logTitle: $("logTitle"),
-  log: $("log"), status: $("status"), rules: $("rules"), scan: $("scan"), clean: $("clean"), langs: $("langs"),
+  log: $("log"), status: $("status"), rules: $("rules"), scan: $("scan"), clean: $("clean"),
 };
 
-let currentLang = store.value("language", "fr");
-if (!(currentLang in TRANSLATIONS)) currentLang = "fr";
+// Langue : l'appli la choisit dans son menu « Langue » (barre de menus macOS) ; la preview suit le navigateur,
+// ou le paramètre ?lang=fr|en|es|it pour les essais.
+const systemLang = () =>
+  (navigator.languages || [navigator.language]).map((l) => (l || "").slice(0, 2).toLowerCase()).find((c) => c in TRANSLATIONS) ?? "en";
+const askedLang = new URLSearchParams(location.search).get("lang");
+const currentLang = askedLang in TRANSLATIONS ? askedLang : systemLang();
 let busy = false;
 let scanned = null; // [dossier, fichiers, dossiers] de la dernière analyse non vide
 const tr = () => TRANSLATIONS[currentLang] ?? TRANSLATIONS.fr;
@@ -90,16 +93,6 @@ const span = (cls, text) => `<span class="${cls}">${text}</span>`;
 const NBSP = "&nbsp;&nbsp;";
 
 // ------------------------------------------------------------------ UI
-const langButtons = {};
-for (const [code, label] of LANGUAGES) {
-  const b = document.createElement("button");
-  b.className = "cl-seg";
-  b.textContent = label;
-  b.addEventListener("click", () => setLanguage(code));
-  langButtons[code] = b;
-  ui.langs.append(b);
-}
-
 const folder = () => {
   const f = ui.path.value.trim();
   return f && fs.isDir(f) ? f : "";
@@ -111,7 +104,7 @@ function setStatus(text, state = "none") {
 }
 
 function updateButtons() {
-  for (const el of [ui.path, ui.browse, ui.rules, ui.scan, ...Object.values(langButtons)]) el.disabled = busy;
+  for (const el of [ui.path, ui.browse, ui.rules, ui.scan]) el.disabled = busy;
   ui.clean.disabled = busy || !(scanned && scanned[0] === ui.path.value.trim());
 }
 
@@ -127,16 +120,7 @@ function retranslateUi() {
   ui.rules.textContent = t.btn_rules;
   ui.scan.textContent = t.btn_scan;
   ui.clean.textContent = t.btn_clean;
-  for (const [code, b] of Object.entries(langButtons)) b.setAttribute("aria-pressed", String(code === currentLang));
   if (!busy) setStatus(folder() ? t.status_loaded : t.status_ready);
-}
-
-function setLanguage(code) {
-  if (code && code !== currentLang) {
-    currentLang = code;
-    store.setValue("language", code);
-    retranslateUi();
-  }
 }
 
 function appendLog(html) {

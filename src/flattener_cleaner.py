@@ -18,8 +18,9 @@ import time
 from typing import List, Tuple
 
 import socle_qt
+import lang_menu
 import updater
-from PyQt6.QtCore import QLocale, Qt, QThread, pyqtSignal, QSettings
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSettings
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -35,7 +36,6 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QFrame,
     QDialog,
-    QButtonGroup,
 )
 from PyQt6.QtGui import QIcon
 
@@ -505,17 +505,6 @@ TRANSLATIONS = {
     },
 }
 
-LANGUAGES = [("fr", "🇫🇷 FR"), ("en", "🇬🇧 EN"), ("it", "🇮🇹 IT"), ("es", "🇪🇸 ES")]
-
-
-def system_lang() -> str:
-    """Première langue préférée du système parmi celles de l'appli, sinon l'anglais."""
-    for code in QLocale.system().uiLanguages():
-        if code[:2].lower() in TRANSLATIONS:
-            return code[:2].lower()
-    return "en"
-
-
 def tr(lang: str) -> dict:
     return TRANSLATIONS.get(lang, TRANSLATIONS["fr"])
 
@@ -730,9 +719,9 @@ class InstanceCleanerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.settings = QSettings("FlattenerCleaner", "FlattenerCleaner")
-        self.current_lang = self.settings.value("language", system_lang())
-        if self.current_lang not in TRANSLATIONS:
-            self.current_lang = system_lang()
+        # « auto » (langue du Mac) ou code choisi dans le menu « Langue » de la barre de menus
+        self.lang_choice = lang_menu.normalize_choice(self.settings.value("language", lang_menu.AUTO))
+        self.current_lang = lang_menu.resolve(self.lang_choice)
 
         self.resize(920, 640)
         self.setMinimumSize(760, 520)
@@ -743,11 +732,11 @@ class InstanceCleanerApp(QMainWindow):
 
         self.worker: CleanerWorker | None = None
         self.busy = False
-        self.lang_buttons = {}
         # Dossier et volume de la dernière analyse : la purge n'est proposée qu'après une analyse non vide.
         self.scanned: Tuple[str, int, int] | None = None
 
         self._init_ui()
+        self.lang_menu = lang_menu.install_qt(self, lambda: self.lang_choice, self._set_language, lambda code: None)
         self.retranslate_ui()
         socle_qt.fit_height(self)
 
@@ -764,7 +753,7 @@ class InstanceCleanerApp(QMainWindow):
         root.setContentsMargins(sp3, sp3, sp3, sp3)
         root.setSpacing(sp3)
 
-        # 1. En-tête : titre, sélecteur de langue, description
+        # 1. En-tête : titre, description
         header = self._panel("raised")
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(sp3, sp3, sp3, sp3)
@@ -775,31 +764,6 @@ class InstanceCleanerApp(QMainWindow):
         self.title_label = socle_qt.role(QLabel(), "heading")
         top.addWidget(self.title_label, 1)
 
-        lang_switch = QFrame()
-        lang_switch.setObjectName("langSwitch")
-        lang_switch.setStyleSheet(
-            f"QFrame#langSwitch {{ background-color: {socle_qt.c('bg-sunken')}; border: 1px solid {socle_qt.c('border')};"
-            f" border-radius: {socle_qt.m('radius-md')}px; }}"
-            f"QFrame#langSwitch QPushButton {{ background: transparent; border: 1px solid transparent; color: {socle_qt.c('text-muted')};"
-            f" min-height: 22px; padding: 0 {sp2}px; }}"
-            f"QFrame#langSwitch QPushButton:hover {{ background-color: {socle_qt.c('surface-hover')}; color: {socle_qt.c('text-strong')}; }}"
-            f"QFrame#langSwitch QPushButton:checked {{ background-color: {socle_qt.c('control')}; color: {socle_qt.c('text-strong')}; }}"
-            f"QFrame#langSwitch QPushButton:focus {{ border-color: {socle_qt.c('focus-ring')}; }}"
-        )
-        lang_layout = QHBoxLayout(lang_switch)
-        lang_layout.setContentsMargins(2, 2, 2, 2)
-        lang_layout.setSpacing(2)
-        group = QButtonGroup(self)
-        group.setExclusive(True)
-        for code, label in LANGUAGES:
-            btn = QPushButton(label)
-            btn.setCheckable(True)
-            btn.setChecked(code == self.current_lang)
-            btn.clicked.connect(lambda _checked, c=code: self._set_language(c))
-            self.lang_buttons[code] = btn
-            group.addButton(btn)
-            lang_layout.addWidget(btn)
-        top.addWidget(lang_switch, 0, Qt.AlignmentFlag.AlignRight)
         header_layout.addLayout(top)
 
         self.subtitle_label = socle_qt.role(QLabel(), "muted")
@@ -889,8 +853,10 @@ class InstanceCleanerApp(QMainWindow):
 
     def _update_buttons(self):
         busy = self.busy
-        for w in (self.path_entry, self.browse_btn, self.rules_btn, self.scan_btn, *self.lang_buttons.values()):
+        for w in (self.path_entry, self.browse_btn, self.rules_btn, self.scan_btn):
             w.setEnabled(not busy)
+        if getattr(self, "lang_menu", None):
+            self.lang_menu.setEnabled(not busy)
         ready = self.scanned is not None and self.scanned[0] == self.path_entry.text().strip()
         self.clean_btn.setEnabled(not busy and ready)
 
@@ -899,10 +865,12 @@ class InstanceCleanerApp(QMainWindow):
             self.scanned = None
         self._update_buttons()
 
-    def _set_language(self, lang_code: str):
-        if lang_code and lang_code != self.current_lang:
+    def _set_language(self, choice: str):
+        self.lang_choice = lang_menu.normalize_choice(choice)
+        self.settings.setValue("language", self.lang_choice)
+        lang_code = lang_menu.resolve(self.lang_choice)
+        if lang_code != self.current_lang:
             self.current_lang = lang_code
-            self.settings.setValue("language", lang_code)
             self.retranslate_ui()
 
     # ------------------------------------------------------------------ actions
