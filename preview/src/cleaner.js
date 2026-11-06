@@ -1,11 +1,13 @@
-// fCLEANER — preview web de src/flattener_cleaner.py (InstanceCleanerApp + CleanerWorker).
+// fCLEANER — preview web de l'appli Swift (ContentView + Job.swift).
 import "./chrome.css";
 import "./cleaner.css";
 import data from "virtual:app-data";
 import { esc, sleep, messageBox, dialog, filePicker, STD } from "./qt.js";
 import { MockFS, relpath } from "./mockfs.js";
 
-const { translations: TRANSLATIONS, filePatterns, dirPatterns } = data.cleaner;
+const { strings: STRINGS, filePatterns, dirPatterns, rules: RULES, note: NOTE } = data.cleaner;
+const LANGS = ["fr", "en", "it", "es"];
+const INDEX = { en: 0, it: 1, es: 2 };
 // Comme FILE_RE / DIR_RE côté Python : une seule expression par catégorie.
 const combine = (pats) => new RegExp(pats.map((p) => `(?:${p.source})`).join("|"), "i");
 const FILE_RE = combine(filePatterns);
@@ -81,14 +83,15 @@ const ui = {
 // Langue : l'appli la choisit dans son menu « Langue » (barre de menus macOS) ; la preview suit le navigateur,
 // ou le paramètre ?lang=fr|en|es|it pour les essais.
 const systemLang = () =>
-  (navigator.languages || [navigator.language]).map((l) => (l || "").slice(0, 2).toLowerCase()).find((c) => c in TRANSLATIONS) ?? "en";
+  (navigator.languages || [navigator.language]).map((l) => (l || "").slice(0, 2).toLowerCase()).find((c) => LANGS.includes(c)) ?? "en";
 const askedLang = new URLSearchParams(location.search).get("lang");
-const currentLang = askedLang in TRANSLATIONS ? askedLang : systemLang();
+const currentLang = LANGS.includes(askedLang) ? askedLang : systemLang();
 let busy = false;
 let scanned = null; // [dossier, fichiers, dossiers] de la dernière analyse non vide
-const tr = () => TRANSLATIONS[currentLang] ?? TRANSLATIONS.fr;
-const std = () => STD[currentLang] ?? STD.fr;
 const fmt = (s, vars) => s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+/** Le texte français sert de clé (comme L() dans l'appli) : traduction de la langue active, sinon le français. */
+const L = (text, vars = {}) => fmt(currentLang === "fr" ? text : STRINGS[text]?.[INDEX[currentLang]] || text, vars);
+const std = () => STD[currentLang] ?? STD.fr;
 const span = (cls, text) => `<span class="${cls}">${text}</span>`;
 const NBSP = "&nbsp;&nbsp;";
 
@@ -109,18 +112,17 @@ function updateButtons() {
 }
 
 function retranslateUi() {
-  const t = tr();
   document.documentElement.lang = currentLang;
-  $("wtitle").textContent = t.app_title;
-  ui.title.textContent = t.header_title;
-  ui.subtitle.textContent = t.header_subtitle;
-  ui.path.placeholder = t.path_placeholder;
-  ui.browse.textContent = t.btn_browse;
-  ui.logTitle.textContent = t.log_title;
-  ui.rules.textContent = t.btn_rules;
-  ui.scan.textContent = t.btn_scan;
-  ui.clean.textContent = t.btn_clean;
-  if (!busy) setStatus(folder() ? t.status_loaded : t.status_ready);
+  $("wtitle").textContent = L("fCLEANER – Nettoyeur d'instance");
+  ui.title.textContent = "🧹 fCLEANER";
+  ui.subtitle.textContent = L("Purge les résidus d'assemblage d'une instance ou d'une collection (MO2, Vortex, Nexus) : métadonnées, modgroups xEdit, caches système, sauvegardes (.BAK), doublons, documents bureautiques, sources graphiques (.PSD, .XCF, .PDN), lisez-moi et licences.");
+  ui.path.placeholder = L("Choisissez le dossier assemblé ou la collection à nettoyer.");
+  ui.browse.textContent = L("Choisir un dossier");
+  ui.logTitle.textContent = L("Journal");
+  ui.rules.textContent = L("Règles de filtrage");
+  ui.scan.textContent = L("ANALYSER");
+  ui.clean.textContent = L("Purger les résidus");
+  if (!busy) setStatus(folder() ? L("Dossier prêt. Lancez l'analyse.") : L("Choisissez un dossier pour commencer."));
 }
 
 function appendLog(html) {
@@ -131,10 +133,9 @@ function appendLog(html) {
 }
 
 async function browseFolder() {
-  const t = tr();
   const names = DEMO_NAMES[currentLang] ?? DEMO_NAMES.fr;
   const chosen = await filePicker(host, {
-    title: t.dialog_choose_dir,
+    title: L("Choisir le dossier à nettoyer"),
     choices: Object.keys(DEMO).map((path, i) => ({ name: names[i], path })),
     labels: std(),
     buttonClass: "cl-btn",
@@ -143,8 +144,8 @@ async function browseFolder() {
     ui.path.value = chosen;
     onPathChanged();
     ui.log.innerHTML = "";
-    appendLog(`${t.log_selected_dir}${span("is-path", esc(chosen))}`);
-    setStatus(t.status_loaded);
+    appendLog(`${L("📁 Dossier sélectionné : ")}${span("is-path", esc(chosen))}`);
+    setStatus(L("Dossier prêt. Lancez l'analyse."));
   }
 }
 
@@ -163,22 +164,26 @@ const RULES_CSS = `
   code { font-family: var(--font-mono); color: var(--accent-text); }
   .note { color: var(--success); margin: 12px 0 0; }`;
 
+const inline = (x) => esc(x).replace(/`(.*?)`/g, "<code>$1</code>").replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+const rulesHtml = () =>
+  RULES.map((r) => `<h3>${esc(L(r.title))}</h3><ul>${r.items.map((i) => `<li>${inline(L(i))}</li>`).join("")}</ul>`).join("") +
+  `<p class="note">${inline(L(NOTE))}</p>`;
+
 function showRulesDialog() {
-  const t = tr();
   const wrap = document.createElement("div");
   wrap.style.cssText = "display:flex;flex-direction:column;gap:12px;min-height:0;flex:1";
   const head = document.createElement("h2");
   head.className = "cl-rules-head";
-  head.textContent = t.dialog_rules_header;
+  head.textContent = L("📋 Éléments ciblés par la purge");
   const box = document.createElement("div");
   box.className = "cl-rules";
-  box.attachShadow({ mode: "open" }).innerHTML = `<style>${RULES_CSS}</style>${t.rules_html}`;
+  box.attachShadow({ mode: "open" }).innerHTML = `<style>${RULES_CSS}</style>${L("\n            <h3>1. Caches et fichiers système</h3>\n            <ul>\n                <li><code>thumbs.db</code> (miniatures Windows)</li>\n                <li><code>desktop.ini</code> (réglages de dossier Windows)</li>\n                <li><code>.DS_Store</code> (métadonnées macOS)</li>\n            </ul>\n            <h3>2. Mod Organizer 2</h3>\n            <ul>\n                <li>Fichiers et dossiers masqués : <code>*.mohidden</code></li>\n            </ul>\n            <h3>3. xEdit (SSEEdit / FO4Edit)</h3>\n            <ul>\n                <li>Groupes de mods : <code>*.modgroups</code>, <code>modgroups.json</code></li>\n                <li>Dossiers : <code>modgroups/</code></li>\n            </ul>\n            <h3>4. Vortex et collections Nexus Mods</h3>\n            <ul>\n                <li>Déploiement : <code>vortex.deployment.json</code></li>\n                <li>Marqueurs : <code>folder_managed_by_vortex</code>, <code>__folder_managed_by_vortex</code></li>\n                <li>Sauvegardes : <code>ActiveMods.json.vortex_backup</code>, <code>Engine.log.vortex_backup</code>, <code>*.vortex_backup*</code></li>\n                <li>Liens symboliques résiduels : <code>*.vortex_lnk</code></li>\n                <li>Métadonnées Nexus : <code>collection.json</code>, <code>collection.meta</code>, <code>manifest.json</code></li>\n                <li>Dossiers temporaires : <code>__vortex_*</code>, <code>.vortex_staging/</code></li>\n            </ul>\n            <h3>5. Sauvegardes, temporaires et doublons</h3>\n            <ul>\n                <li>Sauvegardes : <code>*.bak</code>, <code>*.tmp</code>, <code>*.crdownload</code></li>\n                <li>Copies de fichiers : <code> - copy.*</code>, <code> - copie.*</code>, <code> - copia.*</code></li>\n                <li>Dossiers doublons : <code> - copy</code>, <code> - copie</code>, <code> - copia</code></li>\n            </ul>\n            <h3>6. Documents bureautiques</h3>\n            <ul>\n                <li>Traitements de texte : <code>*.doc</code>, <code>*.docx</code>, <code>*.rtf</code>, <code>*.odt</code></li>\n            </ul>\n            <h3>7. Sources graphiques et fichiers factices</h3>\n            <ul>\n                <li>Projets graphiques : <code>*.pdn</code>, <code>*.xcf</code>, <code>*.psd</code></li>\n                <li>Textures de test : <code>dummy texture.dds</code>, <code>faketexture.dds</code></li>\n            </ul>\n            <h3>8. Documentation et licences uniquement</h3>\n            <ul>\n                <li>Notices : <code>readme</code>, <code>read_me</code>, <code>lisezmoi</code>, <code>instructions</code>, <code>changelog</code> (.txt/.md)</li>\n                <li>Licences : <code>license</code>, <code>licence</code>, <code>eula</code>, <code>copying</code> (.txt/.md)</li>\n            </ul>\n            <p class=\"note\"><b>Protégé :</b> tous les autres fichiers <code>.txt</code> de configuration des mods sont conservés.</p>\n        ")}`;
   wrap.append(head, box);
   const dlgPromise = dialog(host, {
-    title: t.dialog_rules_title,
+    title: L("Règles de filtrage"),
     body: wrap,
     maxWidth: "600px",
-    buttons: [{ label: t.dialog_rules_btn_close, value: true }],
+    buttons: [{ label: L("Fermer"), value: true }],
     buttonClass: "cl-btn",
   });
   const dlg = wrap.parentElement;
@@ -188,11 +193,11 @@ function showRulesDialog() {
 }
 
 // ------------------------------------------------------------------ CleanerWorker
-function formatSize(bytes, t) {
-  if (bytes < 1024) return `${bytes} ${t.unit_bytes}`;
-  if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} ${t.unit_kb}`;
-  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(2)} ${t.unit_mb}`;
-  return `${(bytes / 1024 ** 3).toFixed(2)} ${t.unit_gb}`;
+function formatSize(bytes) {
+  if (bytes < 1024) return `${bytes} ${L("octets")}`;
+  if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} ${L("Ko")}`;
+  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(2)} ${L("Mo")}`;
+  return `${(bytes / 1024 ** 3).toFixed(2)} ${L("Go")}`;
 }
 
 function treeSize(dir) {
@@ -218,74 +223,71 @@ function scan(targetDir) {
 }
 
 async function runWorker(targetDir, cleanMode) {
-  const t = tr();
   const log = async (html) => { appendLog(html); await sleep(18); };
-  const modeText = cleanMode ? t.worker_mode_clean : t.worker_mode_sim;
-  setStatus(fmt(t.worker_processing, { mode: modeText }));
-  await log(`${span("is-head", t.worker_target)} ${esc(targetDir)}`);
-  await log(`${span("is-head", t.worker_mode_label)} ${modeText}`);
+  const modeText = cleanMode ? L("PURGE") : L("SIMULATION, aucune modification");
+  setStatus(fmt(L("Traitement en cours ({mode})…"), { mode: modeText }));
+  await log(`${span("is-head", L("Dossier :"))} ${esc(targetDir)}`);
+  await log(`${span("is-head", L("Mode :"))} ${modeText}`);
   await sleep(350); // parcours du disque
 
   const [filesFound, dirsFound] = scan(targetDir);
   if (!filesFound.length && !dirsFound.length) {
-    await log(`<br>${span("is-ok", t.worker_no_residues)}`);
-    return [cleanMode, 0, 0, 0, t.worker_status_clean];
+    await log(`<br>${span("is-ok", L("✓ Aucun résidu détecté. Le dossier est propre."))}`);
+    return [cleanMode, 0, 0, 0, L("Analyse terminée : aucun résidu.")];
   }
 
   const total = [...filesFound, ...dirsFound].reduce((s, [, size]) => s + size, 0);
-  await log(`<br><b>${fmt(t.worker_detected_summary, { files: filesFound.length, dirs: dirsFound.length, size: formatSize(total, t) })}</b><br>`);
+  await log(`<br><b>${fmt(L("Détectés : {files} fichier(s), {dirs} dossier(s), {size}"), { files: filesFound.length, dirs: dirsFound.length, size: formatSize(total) })}</b><br>`);
 
   const rel = (p) => esc(relpath(p, targetDir));
   let deletedFiles = 0, deletedDirs = 0, errors = 0;
   for (const [path, size] of filesFound) {
-    if (!cleanMode) { await log(`${NBSP}${span("is-warn", t.worker_tag_detected)} ${rel(path)} (${formatSize(size, t)})`); continue; }
+    if (!cleanMode) { await log(`${NBSP}${span("is-warn", L("[DÉTECTÉ]"))} ${rel(path)} (${formatSize(size)})`); continue; }
     try {
       fs.remove(path);
       deletedFiles++;
-      await log(`${NBSP}${span("is-err", t.worker_tag_deleted)} ${rel(path)} (${formatSize(size, t)})`);
+      await log(`${NBSP}${span("is-err", L("[SUPPRIMÉ]"))} ${rel(path)} (${formatSize(size)})`);
     } catch (err) {
       errors++;
-      await log(`${NBSP}<b>${span("is-err", t.worker_tag_error)}</b> ${rel(path)} : ${esc(err.message)}`);
+      await log(`${NBSP}<b>${span("is-err", L("[ERREUR]"))}</b> ${rel(path)} : ${esc(err.message)}`);
     }
   }
   for (const [dpath, size] of dirsFound) {
-    if (!cleanMode) { await log(`${NBSP}${span("is-warn", t.worker_tag_dir_detected)} ${rel(dpath)}/ (${formatSize(size, t)})`); continue; }
+    if (!cleanMode) { await log(`${NBSP}${span("is-warn", L("[DOSSIER DÉTECTÉ]"))} ${rel(dpath)}/ (${formatSize(size)})`); continue; }
     try {
       fs.rmtree(dpath);
       deletedDirs++;
-      await log(`${NBSP}${span("is-err", t.worker_tag_dir_deleted)} ${rel(dpath)}/`);
+      await log(`${NBSP}${span("is-err", L("[DOSSIER SUPPRIMÉ]"))} ${rel(dpath)}/`);
     } catch (err) {
       errors++;
-      await log(`${NBSP}<b>${span("is-err", t.worker_tag_dir_error)}</b> ${rel(dpath)} : ${esc(err.message)}`);
+      await log(`${NBSP}<b>${span("is-err", L("[ERREUR DOSSIER]"))}</b> ${rel(dpath)} : ${esc(err.message)}`);
     }
   }
 
   await log("");
   if (cleanMode) {
-    const summary = fmt(t.worker_clean_done, { files: deletedFiles, dirs: deletedDirs });
+    const summary = fmt(L("Purge terminée : {files} fichier(s) et {dirs} dossier(s) supprimés."), { files: deletedFiles, dirs: deletedDirs });
     await log(span("is-ok", `✓ ${summary}`));
-    if (errors) await log(span("is-err", fmt(t.worker_clean_errors, { count: errors })));
+    if (errors) await log(span("is-err", fmt(L("Erreur : {count} élément(s) n'ont pas pu être supprimés. Vérifiez qu'ils ne sont pas ouverts ou protégés."), { count: errors })));
     return [true, deletedFiles, deletedDirs, errors, summary];
   }
-  const summary = fmt(t.worker_sim_done, { files: filesFound.length, dirs: dirsFound.length });
+  const summary = fmt(L("Analyse terminée : {files} fichier(s) et {dirs} dossier(s) à purger."), { files: filesFound.length, dirs: dirsFound.length });
   await log(span("is-info", `✓ ${summary}`));
-  await log(fmt(t.worker_sim_hint, { btn: esc(t.btn_clean) }));
+  await log(fmt(L("Rien n'a été supprimé. Cliquez sur « {btn} » pour les supprimer."), { btn: esc(L("Purger les résidus")) }));
   return [false, filesFound.length, dirsFound.length, 0, summary];
 }
 
 async function confirmClean() {
-  const t = tr();
   const [, files, dirs] = scanned;
-  const reply = await messageBox(host, { kind: "warning", title: t.confirm_clean_title, text: fmt(t.confirm_clean_msg, { files, dirs }),
-    buttons: [{ label: t.btn_confirm_clean, value: true }, { label: t.btn_cancel, value: false, default: true }], buttonClass: "cl-btn" });
+  const reply = await messageBox(host, { kind: "warning", title: L("Purger les résidus"), text: fmt(L("Supprimer définitivement {files} fichier(s) et {dirs} dossier(s) détectés ?\n\nLes autres fichiers .TXT des mods ne sont pas touchés. Cette opération est irréversible."), { files, dirs }),
+    buttons: [{ label: L("Supprimer"), value: true }, { label: L("Annuler"), value: false, default: true }], buttonClass: "cl-btn" });
   return reply === true;
 }
 
 async function startOperation(cleanMode) {
-  const t = tr();
   const target = folder();
   if (!target) {
-    await messageBox(host, { kind: "warning", title: t.warn_missing_dir_title, text: fmt(t.warn_missing_dir_msg, { btn: t.btn_browse }),
+    await messageBox(host, { kind: "warning", title: L("Dossier introuvable"), text: fmt(L("Ce dossier n'existe pas ou n'est plus accessible. Choisissez-en un autre avec « {btn} »."), { btn: L("Choisir un dossier") }),
       buttons: [{ label: std().ok, value: true, default: true }], buttonClass: "cl-btn" });
     return;
   }
@@ -300,8 +302,8 @@ async function startOperation(cleanMode) {
   updateButtons();
   if (wasClean) {
     setStatus(summary, errors ? "danger" : "success");
-    const text = errors ? `${summary}\n\n${fmt(tr().worker_clean_errors, { count: errors })}` : summary;
-    await messageBox(host, { kind: "information", title: tr().clean_complete_title, text,
+    const text = errors ? `${summary}\n\n${fmt(L("Erreur : {count} élément(s) n'ont pas pu être supprimés. Vérifiez qu'ils ne sont pas ouverts ou protégés."), { count: errors })}` : summary;
+    await messageBox(host, { kind: "information", title: L("Purge terminée"), text,
       buttons: [{ label: std().ok, value: true, default: true }], buttonClass: "cl-btn" });
   } else {
     setStatus(summary, files || dirs ? "none" : "success");

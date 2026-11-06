@@ -29,3 +29,10 @@ logs/
 
 # dist/ est ici du code écrit à la main
 !dist/
+
+# Notes de travail
+ETAT.md
+
+# Swift
+.build/
+.swiftpm/

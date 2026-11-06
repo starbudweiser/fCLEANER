@@ -9,6 +9,10 @@
 
 💬 **Support & community:** [Discord](https://discord.gg/xdDVDPQsYs) · *Aide et communauté : [Discord](https://discord.gg/xdDVDPQsYs)*
 
+### About
+
+fCLEANER scans a folder for assembly leftovers (OS caches, MO2/Vortex/xEdit metadata, backups, duplicates, office documents, graphic sources, readmes and licenses) and purges them on request. By Starbudweiser & Claude Code (Anthropic). MIT License, © 2026 Starbudweiser. Provided as is, without warranty of any kind. See **About fCLEANER** in the app menu.
+
 ---
 ## 🇬🇧 English
 
@@ -29,13 +33,13 @@ After flattening a mod list (with mO2FLATTENER or by hand), the game folder is f
 ### What's new in 1.3.0
 
 - Signed with a Developer ID and notarized by Apple: macOS now opens the app without a security warning.
-- The app's launcher is now compiled from source when the app is built, instead of using PyInstaller's generic prebuilt launcher, which antivirus scanners tend to flag. No change in features.
+- Rewritten as a native Swift app (no more Python/PyInstaller), same rules, same messages, same look. No more generic PyInstaller launcher, which antivirus scanners tend to flag.
 - The first letter of the app's name now uses the colour of its logo everywhere it appears.
 - Version number aligned across the Skyrim Mac Toolkit.
 
 ### Updates
 
-The app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
+The app checks once a day whether a newer release exists on GitHub and offers to install it (signature checked), remind you later or skip that version; never while an operation is running. The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 ### Screenshots
 
@@ -44,7 +48,7 @@ The app checks once a day whether a newer release exists on GitHub and offers to
 
 ### Requirements
 
-A Mac with **Apple Silicon** (M1 or later), **macOS 13 Ventura** or later. No Python, no Wine, no virtual machine needed.
+A Mac with **Apple Silicon** (M1 or later), **macOS 15 Sequoia** or later. No Python, no Wine, no virtual machine needed.
 
 ### Installation
 
@@ -64,7 +68,7 @@ No: deleted files are not moved to the Trash. Always read the scan first, and ke
 
 ### Building from source
 
-Requires Python 3.12 with PyQt6 and PyInstaller. From the repository folder:
+Requires Xcode (Swift 6). From the repository folder:
 
 ```bash
 ./build_app.sh
@@ -95,13 +99,13 @@ Après l'aplatissement d'une liste de mods (avec mO2FLATTENER ou à la main), le
 ### Nouveautés de la 1.3.0
 
 - Signée avec un certificat Developer ID et notarisée par Apple : macOS ouvre désormais l'appli sans avertissement de sécurité.
-- Le lanceur de l'appli est maintenant compilé depuis les sources à la construction de l'appli, au lieu du lanceur générique précompilé de PyInstaller, souvent signalé par les antivirus. Aucun changement de fonctionnalités.
+- Réécrite en appli Swift native (plus de Python ni de PyInstaller), mêmes règles, mêmes messages, même aspect. Plus de lanceur PyInstaller générique, souvent signalé par les antivirus.
 - La première lettre du nom de l'appli prend la couleur de son logo partout où il est écrit.
 - Numéro de version commun à tout le Skyrim Mac Toolkit.
 
 ### Mises à jour
 
-L'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose d'ouvrir la page Nexus, de rappeler plus tard ou d'ignorer cette version. Rien n'est téléchargé ni installé automatiquement. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
+L'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose de l'installer (signature vérifiée), de rappeler plus tard ou d'ignorer cette version ; jamais pendant une opération en cours. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
 
 ### Captures d'écran
 
@@ -110,7 +114,7 @@ L'appli vérifie une fois par jour si une version plus récente existe sur GitHu
 
 ### Configuration requise
 
-Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 13 Ventura** ou plus récent. Ni Python, ni Wine, ni machine virtuelle.
+Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 15 Sequoia** ou plus récent. Ni Python, ni Wine, ni machine virtuelle.
 
 ### Installation
 
@@ -130,7 +134,7 @@ Non : les fichiers supprimés ne vont pas dans la Corbeille. Lisez toujours l'an
 
 ### Compiler depuis les sources
 
-Nécessite Python 3.12 avec PyQt6 et PyInstaller. Depuis le dossier du dépôt :
+Nécessite Xcode (Swift 6). Depuis le dossier du dépôt :
 
 ```bash
 ./build_app.sh

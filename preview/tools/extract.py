@@ -1,48 +1,40 @@
 #!/usr/bin/env python3
-"""Extrait des sources Python (sans les exécuter) les données affichées par la preview :
-traductions, langues, règles de filtrage. Sortie JSON sur stdout."""
-import ast
+"""Lit pour la preview, sans rien exécuter : la table de traductions (i18n/strings.json), les motifs de filtrage
+(macos/Sources/CleanCore/Patterns.swift) et les règles affichées (macos/Sources/fCLEANER/RulesView.swift).
+usage : extract.py <dossier du projet> ; sortie JSON sur stdout."""
 import json
+import re
 import sys
 from pathlib import Path
 
-SRC = Path(sys.argv[1])
+ROOT = Path(sys.argv[1])
+swift = lambda p: (ROOT / "macos" / "Sources" / p).read_text(encoding="utf-8")
 
 
-def module(name: str) -> ast.Module:
-    return ast.parse((SRC / name).read_text(encoding="utf-8"))
+def block(src: str, name: str) -> list:
+    """Motifs `#"…"#` d'un tableau Swift (static let <name>: [String] = [ … ])."""
+    m = re.search(rf"static let {name}: \[String\] = \[(.*?)\n    \]", src, re.S)
+    return [{"source": p, "flags": "i"} for p in re.findall(r'#"(.*?)"#', m.group(1))]
 
 
-def top_level(tree: ast.Module) -> dict:
-    """Constantes de niveau module (dict, list, set de littéraux)."""
-    out = {}
-    for node in tree.body:
-        target = None
-        if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
-            target, value = node.targets[0].id, node.value
-        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name) and node.value:
-            target, value = node.target.id, node.value
-        if target and target.isupper():
-            try:
-                v = ast.literal_eval(value)
-            except ValueError:
-                continue
-            out[target] = sorted(v) if isinstance(v, set) else v
-    return out
+def lit(s: str) -> str:
+    return json.loads('"' + s + '"')
 
 
-def patterns(values: list) -> list:
-    """Motifs de niveau module (chaînes), tous insensibles à la casse."""
-    return [{"source": v, "flags": "i"} for v in values]
-
-
-cleaner = module("flattener_cleaner.py")
-c = top_level(cleaner)
+patterns = swift("CleanCore/Patterns.swift")
+rules_src = swift("fCLEANER/RulesView.swift")
+sections = []
+for m in re.finditer(r'RuleSection\(title: N_\("((?:[^"\\]|\\.)*)"\), items: \[(.*?)\]\)', rules_src, re.S):
+    sections.append({"title": lit(m.group(1)),
+                     "items": [lit(i) for i in re.findall(r'N_\("((?:[^"\\]|\\.)*)"\)', m.group(2))]})
+note = lit(re.search(r'let rulesNote = N_\("((?:[^"\\]|\\.)*)"\)', rules_src).group(1))
 
 print(json.dumps({
     "cleaner": {
-        "translations": c["TRANSLATIONS"],
-        "filePatterns": patterns(c["FILE_PATTERNS"]),
-        "dirPatterns": patterns(c["DIR_PATTERNS"]),
+        "strings": json.loads((ROOT / "i18n" / "strings.json").read_text(encoding="utf-8")),
+        "filePatterns": block(patterns, "file"),
+        "dirPatterns": block(patterns, "dir"),
+        "rules": sections,
+        "note": note,
     },
 }, ensure_ascii=False))
