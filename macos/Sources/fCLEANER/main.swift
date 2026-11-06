@@ -76,7 +76,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     /// Fermer la fenêtre pendant une opération : arrêt propre du travail, puis fermeture.
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        model.stopAndWait()
+        if model.stopAndWait() {
+            // Opération arrêtée : on quitte franchement, comme la version Python, sans laisser
+            // un message de fin ou une alerte en cours retenir la fenêtre.
+            DispatchQueue.main.async { NSApp.terminate(nil) }
+        }
         return true
     }
 

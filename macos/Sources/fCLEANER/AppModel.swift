@@ -52,6 +52,7 @@ final class AppModel {
     private var cancel = CancelFlag()
     private let done = DispatchSemaphore(value: 0)
     private var running = false
+    private var closing = false  // fermeture demandée pendant une opération
 
     init() { status = L("Choisissez un dossier pour commencer.") }
 
@@ -112,6 +113,7 @@ final class AppModel {
 
     private func finished(_ r: JobResult) {
         running = false
+        if closing { return }  // fenêtre en cours de fermeture : pas de message de fin
         scanned = !r.clean && (r.files > 0 || r.dirs > 0) ? (trimmed, r.files, r.dirs) : nil
         busy = false
         logTick += 1
@@ -136,10 +138,15 @@ final class AppModel {
     }
 
     /// Fermeture de la fenêtre : on ne coupe pas une suppression brutalement, on l'arrête proprement et on attend.
-    func stopAndWait() {
-        guard running else { return }
+    /// Renvoie vrai si une opération tournait. Le message de fin n'est alors plus affiché : l'appli se ferme.
+    @discardableResult
+    func stopAndWait() -> Bool {
+        guard running else { return false }
+        closing = true
         cancel.set()
         done.wait()
+        running = false  // un second appel (fermeture puis Quitter) ne doit pas attendre une seconde fois
+        return true
     }
 
     // MARK: Langue
