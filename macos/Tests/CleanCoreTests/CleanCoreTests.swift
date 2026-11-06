@@ -42,7 +42,7 @@ final class CleanCoreTests: XCTestCase {
 
     func testFilePatternsTaken() {
         let taken = ["Thumbs.db", "THUMBS.DB", "desktop.ini", ".DS_Store", ".ds_store", "a.mohidden", "x.modgroups", "modgroups.json",
-                     "vortex.deployment.json", "_folder_managed_by_vortex", "__folder_managed_by_vortex", "ActiveMods.json.vortex_backup",
+                     "vortex.deployment.json", "folder_managed_by_vortex", "_folder_managed_by_vortex", "__folder_managed_by_vortex", "ActiveMods.json.vortex_backup",
                      "x.vortex_backup2", "a.vortex_lnk", "collection.json", "collection.meta", "manifest.json",
                      "a.bak", "a.TMP", "a.crdownload", "tex - Copy.dds", "tex - copie.dds", "tex - copia.png", "tex - ©.dds",
                      "tex - ▒▒.dds", "tex - ¥?.dds", "a.pdn", "a.xcf", "a.PSD", "a.doc", "a.docx", "a.rtf", "a.odt",
@@ -56,7 +56,7 @@ final class CleanCoreTests: XCTestCase {
         let kept = ["config.txt", "notes.txt", "readme_fr.txt", "myreadme.txt", "readme.pdf", "readme.txt.old", "thumbs.db.x", "athumbs.db",
                     "desktop.ini.bak.keep", "collection.jsonx", "xmanifest.json", "a.docm", "a.doc.x", "tex - Copy", "tex - copy.dds.x",
                     "tex - cop.dds", "tex - copyright.dds", "tex.dds", "dummy texture.png", "a.psdx", "a.xcfx", "modgroups.jsonx", "licenses.txt",
-                    "a.mohiddenx", "vortex.deployment.jsonx", "tex-copy.dds", "tex - ab.dds", "folder_managed_by_vortex", "a.bakx", "plugin.esp", "mesh.nif"]
+                    "a.mohiddenx", "vortex.deployment.jsonx", "tex-copy.dds", "tex - ab.dds", "___folder_managed_by_vortex", "a.bakx", "plugin.esp", "mesh.nif"]
         for n in kept { if n.hasSuffix(".bak") || n.hasSuffix(".tmp") { continue }; XCTAssertFalse(Patterns.matchesFile(n), n) }
     }
 
@@ -70,10 +70,10 @@ final class CleanCoreTests: XCTestCase {
 
     func testDirPatterns() {
         for n in ["Textures - Copy", "x - copie", "y - COPIA", "a.mohidden", "__vortex_staging", "__VORTEX_x", ".vortex_staging",
-                  "_folder_managed_by_vortex", "__folder_managed_by_vortex", "modgroups", "MODGROUPS"] {
+                  "folder_managed_by_vortex", "_folder_managed_by_vortex", "__folder_managed_by_vortex", "modgroups", "MODGROUPS"] {
             XCTAssertTrue(Patterns.matchesDir(n), n)
         }
-        for n in ["Textures", "Copy", "modgroups2", "my_modgroups", "vortex_staging", "x - copy.bak", "_vortex_x", ".vortex_staging2", "Meshes - Copy2", "folder_managed_by_vortex"] {  // comme en Python : au moins un tiret bas devant
+        for n in ["Textures", "Copy", "modgroups2", "my_modgroups", "vortex_staging", "x - copy.bak", "_vortex_x", ".vortex_staging2", "Meshes - Copy2", "___folder_managed_by_vortex"] {
             XCTAssertFalse(Patterns.matchesDir(n), n)
         }
     }

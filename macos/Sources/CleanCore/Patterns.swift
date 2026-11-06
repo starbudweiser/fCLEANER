@@ -16,7 +16,7 @@ public enum Patterns {
         #"^modgroups\.json$"#,
         // Vortex & Collections Nexus Mods (.vortex_backup couvre ActiveMods.json / Engine.log)
         #"^vortex\.deployment\.json$"#,
-        #"^__?folder_managed_by_vortex$"#,
+        #"^_{0,2}folder_managed_by_vortex$"#,
         #"\.vortex_backup"#,
         #"\.vortex_lnk$"#,
         #"^(collection\.json|collection\.meta|manifest\.json)$"#,
@@ -40,7 +40,7 @@ public enum Patterns {
         #" - cop(y|ie|ia)$"#,
         #"^__vortex_"#,
         #"^\.vortex_staging$"#,
-        #"^__?folder_managed_by_vortex$"#,
+        #"^_{0,2}folder_managed_by_vortex$"#,
         #"^modgroups$"#,
     ]
 
