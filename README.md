@@ -2,6 +2,8 @@
 
 # fCLEANER
 
+[![Listed on OpenMacApps](https://openmacapps.com/badge.svg)](https://openmacapps.com/apps/fcleaner/)
+
 **Cleans the leftovers of a flattened mod setup: metadata, backups, duplicates, sources, readmes…**  
 *Nettoie les résidus d'une installation de mods aplatie : métadonnées, sauvegardes, doublons, sources, lisez-moi…*
 
