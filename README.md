@@ -2,29 +2,21 @@
 
 # fCLEANER
 
-[![Listed on OpenMacApps](https://openmacapps.com/badge.svg)](https://openmacapps.com/apps/fcleaner/)
+[![Listed on OpenMacApps](https://openmacapps.com/badge.svg)](https://openmacapps.com/apps/fcleaner/) [![Latest release](https://img.shields.io/github/v/release/starbudweiser/fCLEANER)](https://github.com/starbudweiser/fCLEANER/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**Cleans the leftovers of a flattened mod setup: metadata, backups, duplicates, sources, readmes…**  
-*Nettoie les résidus d'une installation de mods aplatie : métadonnées, sauvegardes, doublons, sources, lisez-moi…*
+**Cleans the leftovers of a flattened mod setup: metadata, backups, duplicates, sources, readmes…**
 
-🍏 **Native Mac app written in Swift, signed and notarized by Apple.** · *Appli Mac native écrite en Swift, signée et notarisée par Apple.*
+🇬🇧 English · 🇫🇷 [Français](#français)
 
-🇬🇧 [English](#-english) · 🇫🇷 [Français](#-français)
-
-💬 **Support & community:** [Discord](https://discord.gg/xdDVDPQsYs) · *Aide et communauté : [Discord](https://discord.gg/xdDVDPQsYs)*
-
-### About
+## About
 
 fCLEANER scans a folder for assembly leftovers (OS caches, MO2/Vortex/xEdit metadata, backups, duplicates, office documents, graphic sources, readmes and licenses) and purges them on request. By Starbudweiser & Claude Code (Anthropic). MIT License, © 2026 Starbudweiser. Provided as is, without warranty of any kind. See **About fCLEANER** in the app menu.
 
----
-## 🇬🇧 English
-
-### What it does
+🍏 **Native Mac app written in Swift, signed and notarized by Apple.**
 
 After flattening a mod list (with mO2FLATTENER or by hand), the game folder is full of files the game never uses. fCLEANER scans a folder, shows what would be removed (dry run) and purges it only when you ask.
 
-### Features
+## Features
 
 - **Scan** first (dry run): nothing is deleted, the full list is shown with sizes.
 - Removes OS caches (thumbs.db, desktop.ini, .DS_Store) and MO2 hidden files (`*.mohidden`).
@@ -41,14 +33,14 @@ After flattening a mod list (with mO2FLATTENER or by hand), the game folder is f
 - The first letter of the app's name now uses the colour of its logo everywhere it appears.
 - Version number aligned across the Skyrim Mac Toolkit.
 
-### Updates
-
-The app checks once a day whether a newer release exists on GitHub and offers to install it (signature checked), remind you later or skip that version; never while an operation is running. The full history is in [CHANGELOG.md](CHANGELOG.md).
-
 ### Screenshots
 
 ![Dry-run scan of a mods folder](docs/screenshots/02_scan.png)
 *Dry-run scan of a mods folder*
+
+## Install
+
+**[Download the latest notarized release](https://github.com/starbudweiser/fCLEANER/releases/latest)** · requires **macOS 15 Sequoia** or later on Apple Silicon.
 
 ### Requirements
 
@@ -65,12 +57,11 @@ A Mac with **Apple Silicon** (M1 or later), **macOS 15 Sequoia** or later. Nativ
 2. Click **SCAN** and read the log.
 3. If the list is right, click **Purge leftovers**.
 
-### FAQ
+### Updates
 
-**Is the purge reversible?**  
-No: deleted files are not moved to the Trash. Always read the scan first, and keep a backup of your modlist.
+The app checks once a day whether a newer release exists on GitHub and offers to install it (signature checked), remind you later or skip that version; never while an operation is running. The full history is in [CHANGELOG.md](CHANGELOG.md).
 
-### Building from source
+## Build
 
 Requires Xcode (Swift 6). From the repository folder:
 
@@ -78,13 +69,32 @@ Requires Xcode (Swift 6). From the repository folder:
 ./build_app.sh
 ```
 
-### License
+## Languages
 
-Released under the **MIT License**: free to use, modify and share. Part of the **Skyrim Mac Toolkit**, a set of modding tools built for Skyrim players on Mac.
+English, French, Spanish and Italian. The app follows your Mac's preferred language automatically (English if it is none of these four).
+
+## Support
+
+💬 Help and community: [Skyrim Mac Toolkit Discord](https://discord.gg/jRS4rvynx6) · bug reports: [GitHub Issues](https://github.com/starbudweiser/fCLEANER/issues).
+
+### FAQ
+
+**Is the purge reversible?**  
+No: deleted files are not moved to the Trash. Always read the scan first, and keep a backup of your modlist.
+
+## License
+
+Released under the **MIT License**: free to use, modify and share. Part of the **Skyrim Mac Toolkit**, a set of modding tools built for Skyrim players on Mac. See [LICENSE](LICENSE).
 
 ---
 
-## 🇫🇷 Français
+## Français
+
+**Nettoie les résidus d'une installation de mods aplatie : métadonnées, sauvegardes, doublons, sources, lisez-moi…**
+
+🍏 *Appli Mac native écrite en Swift, signée et notarisée par Apple.*
+
+💬 Aide et communauté : [Discord du Skyrim Mac Toolkit](https://discord.gg/jRS4rvynx6)
 
 ### À quoi ça sert
 
