@@ -93,4 +93,6 @@ let translations: [String: [String]] = [
     "Tout sélectionner": ["Select All", "Seleziona tutto", "Seleccionar todo"],
     "Copier": ["Copy", "Copia", "Copiar"],
     "Coller": ["Paste", "Incolla", "Pegar"],
+    "{n} octet": ["{n} byte", "{n} byte", "{n} byte"],
+    "{n} octets": ["{n} bytes", "{n} byte", "{n} bytes"],
 ]

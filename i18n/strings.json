@@ -458,5 +458,15 @@
   "Paste",
   "Incolla",
   "Pegar"
+ ],
+ "{n} octet": [
+  "{n} byte",
+  "{n} byte",
+  "{n} byte"
+ ],
+ "{n} octets": [
+  "{n} bytes",
+  "{n} byte",
+  "{n} bytes"
  ]
 }
